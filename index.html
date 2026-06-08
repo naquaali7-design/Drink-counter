@@ -114,48 +114,62 @@
     .overlay.open { display:flex; }
     .modal {
       background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
-      width:100%; max-width:460px; max-height:90vh; overflow-y:auto;
-      padding:24px; display:flex; flex-direction:column; gap:16px;
+      width:100%; max-width:420px; padding:24px; display:flex; flex-direction:column; gap:16px;
     }
     .modal-header { display:flex; justify-content:space-between; align-items:center; }
     .modal-header h2 { font-size:1.1rem; font-weight:700; }
     .close-btn { background:none; border:none; color:var(--muted); font-size:1.3rem; cursor:pointer; }
     .close-btn:hover { color:var(--text); }
 
-    .step { background:var(--card); border-radius:10px; padding:14px 16px; display:flex; gap:12px; align-items:flex-start; }
-    .step-num { flex-shrink:0; width:24px; height:24px; background:var(--accent-dim); color:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; }
-    .step-body { flex:1; font-size:0.875rem; line-height:1.6; }
-    .step-body a { color:var(--accent); text-decoration:none; }
-    .step-body a:hover { text-decoration:underline; }
-    .step-body code { font-family:monospace; font-size:0.82rem; color:var(--accent); background:rgba(79,142,247,0.1); padding:1px 5px; border-radius:4px; }
+    .status-badge { display:flex; align-items:center; gap:8px; background:var(--card); border-radius:10px; padding:12px 14px; font-size:0.875rem; }
+    .badge-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .badge-dot.ok      { background:var(--success); }
+    .badge-dot.syncing { background:var(--warning); animation:pulse 1s infinite; }
+    .badge-dot.error   { background:var(--danger); }
+
+    .code-card {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .code-label { font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .code-value {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 1.5rem; font-weight: 700; letter-spacing: 4px;
+      color: var(--text);
+    }
+    .code-hint { font-size: 0.78rem; color: var(--muted); }
 
     .field-group { display:flex; flex-direction:column; gap:8px; }
     .field-group label { font-size:0.82rem; color:var(--muted); font-weight:500; }
-    .field-row  { display:flex; gap:8px; }
-    .field-group input, .field-group textarea {
+    .field-row { display:flex; gap:8px; }
+    .field-group input {
       background:var(--card); border:1px solid var(--border); color:var(--text);
-      border-radius:8px; padding:10px 12px; font-size:0.85rem; width:100%;
+      border-radius:8px; padding:10px 12px; font-size:0.9rem; flex:1; min-width:0;
     }
-    .field-group textarea { font-family:"SFMono-Regular",Consolas,monospace; resize:vertical; min-height:130px; line-height:1.5; }
-    .field-group input:focus, .field-group textarea:focus { outline:none; border-color:var(--accent); }
+    .field-group input:focus { outline:none; border-color:var(--accent); }
+
+    .action-btn {
+      width:100%; padding:12px; background:var(--accent); color:#fff;
+      border:none; border-radius:10px; font-size:0.9rem; font-weight:700;
+      cursor:pointer; transition:background 0.15s;
+    }
+    .action-btn:hover { background:#6aa0ff; }
+    .action-btn:disabled { opacity:0.5; cursor:default; }
+    .action-btn.secondary { background:var(--card); color:var(--text); border:1px solid var(--border); }
+    .action-btn.secondary:hover { border-color:var(--accent); background:var(--card); }
 
     .copy-btn { flex-shrink:0; background:var(--card); border:1px solid var(--border); color:var(--muted); border-radius:8px; padding:10px 14px; font-size:0.82rem; cursor:pointer; white-space:nowrap; transition:color 0.15s,border-color 0.15s; }
     .copy-btn:hover { color:var(--text); border-color:var(--accent); }
 
-    .connect-btn { width:100%; padding:13px; background:var(--accent); color:#fff; border:none; border-radius:10px; font-size:0.95rem; font-weight:700; cursor:pointer; transition:background 0.15s; }
-    .connect-btn:hover { background:#6aa0ff; }
-    .connect-btn:disabled { opacity:0.5; cursor:default; }
-
-    .disconnect-btn { width:100%; padding:10px; background:none; border:1px solid var(--danger); color:var(--danger); border-radius:10px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:background 0.15s; }
-    .disconnect-btn:hover { background:rgba(224,82,82,0.1); }
-
-    .status-badge { display:flex; align-items:center; gap:8px; background:var(--card); border-radius:10px; padding:10px 14px; font-size:0.875rem; }
-    .badge-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-    .badge-dot.ok { background:var(--success); }
-
     .divider { border:none; border-top:1px solid var(--border); }
-    .hint { font-size:0.8rem; color:var(--muted); line-height:1.5; }
     .error-msg { color:var(--danger); font-size:0.82rem; }
+
+    /* Switch-code panel */
+    #switchPanel { display:none; flex-direction:column; gap:12px; }
+    #switchPanel.open { display:flex; }
   </style>
 </head>
 <body>
@@ -167,7 +181,7 @@
     <div class="week-label" id="weekLabel"></div>
   </div>
   <div class="header-actions">
-    <button class="icon-btn" id="syncBtn" title="Sync settings">
+    <button class="icon-btn" id="syncBtn" title="Sync">
       ☁<span class="sync-dot" id="syncDot"></span>
     </button>
   </div>
@@ -209,96 +223,142 @@
 <div class="overlay" id="syncOverlay">
   <div class="modal">
     <div class="modal-header">
-      <h2>☁ Sync Setup</h2>
+      <h2>☁ Sync</h2>
       <button class="close-btn" id="closeModal">✕</button>
     </div>
 
-    <!-- Connected -->
-    <div id="connectedView" style="display:none;flex-direction:column;gap:14px;">
-      <div class="status-badge">
-        <span class="badge-dot ok"></span>
-        <span>Connected to Firestore — syncing across all devices</span>
-      </div>
-      <div class="field-group">
-        <label>Sync code — enter this on your other devices</label>
-        <div class="field-row">
-          <input type="text" id="connectedCode" readonly style="font-family:monospace;letter-spacing:2px;font-weight:700;color:var(--accent);" />
-          <button class="copy-btn" id="copyCodeBtn">Copy</button>
-        </div>
-      </div>
-      <p class="hint">Open the app on another device, tap ☁, paste the same <code>firebaseConfig</code> and this sync code.</p>
-      <hr class="divider" />
-      <button class="disconnect-btn" id="disconnectBtn">Disconnect sync</button>
+    <div class="status-badge">
+      <span class="badge-dot" id="modalDot"></span>
+      <span id="modalStatus">Connecting…</span>
     </div>
 
-    <!-- Setup -->
-    <div id="setupView" style="display:flex;flex-direction:column;gap:14px;">
-      <p style="font-size:0.875rem;color:var(--muted);">Uses <strong style="color:var(--text);">Firebase Firestore</strong> — free tier, no credit card needed.</p>
+    <!-- Sync code display -->
+    <div class="code-card">
+      <div class="code-label">Your sync code</div>
+      <div class="code-value" id="codeDisplay">——————</div>
+      <div class="code-hint">Enter this code on your other devices to sync your data.</div>
+    </div>
 
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> → <strong>Create a project</strong> (any name, disable Analytics to go faster).
-        </div>
-      </div>
+    <div class="field-row">
+      <button class="action-btn" id="copyCodeBtn">Copy code</button>
+      <button class="action-btn secondary" id="switchCodeBtn">Use a different code</button>
+    </div>
 
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          In your project, click <code>&lt;/&gt; Web</code> to add a web app → give it any name → click <strong>Register app</strong>. Copy the <code>firebaseConfig</code> object it shows you and paste it in the box below.
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          Back in the Firebase console, go to <strong>Build → Firestore Database → Create database → Start in test mode</strong> → pick any location → <strong>Enable</strong>.
-        </div>
-      </div>
-
+    <!-- Switch-code panel -->
+    <div id="switchPanel">
+      <hr class="divider" />
+      <p style="font-size:0.85rem;color:var(--muted);">Enter the sync code from your other device to merge data.</p>
       <div class="field-group">
-        <label for="configInput">Paste your firebaseConfig here</label>
-        <textarea id="configInput" placeholder='const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "your-app.firebaseapp.com",
-  projectId: "your-app",
-  storageBucket: "your-app.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abc123"
-};'></textarea>
-      </div>
-
-      <div class="field-group">
-        <label for="syncCode">Sync code <span style="color:var(--muted);font-weight:400;">(auto-generated — use the same code on all your devices)</span></label>
         <div class="field-row">
-          <input type="text" id="syncCode" />
-          <button class="copy-btn" id="copyNewCodeBtn">Copy</button>
+          <input type="text" id="newCodeInput" placeholder="e.g. A1B2C3D4E5F6" style="text-transform:uppercase;font-family:monospace;letter-spacing:2px;" maxlength="12" />
         </div>
       </div>
-
-      <p class="hint">Already synced on another device? Paste that device's sync code above instead of the auto-generated one.</p>
-
-      <div id="connectError" class="error-msg" style="display:none;"></div>
-      <button class="connect-btn" id="connectBtn">Connect &amp; Sync</button>
+      <div id="switchError" class="error-msg" style="display:none;"></div>
+      <button class="action-btn" id="applyCodeBtn">Switch &amp; Sync</button>
     </div>
   </div>
 </div>
 
 <script>
+// ── Firebase config (embedded) ────────────────────────────────────────
+const FB_API_KEY    = 'AIzaSyDvGABAnXxQ5nhXc3XwxCU2UkxGuDCIliY';
+const FB_PROJECT_ID = 'soda-tracker-5a705';
+
 // ── Storage ───────────────────────────────────────────────────────────
-const STORAGE_KEY = 'soda-tracker-v1';
-const GOAL_KEY    = 'soda-tracker-goal';
-const FB_KEY      = 'soda-firebase-cfg';
+const STORAGE_KEY  = 'soda-tracker-v1';
+const GOAL_KEY     = 'soda-tracker-goal';
+const SYNC_CODE_KEY = 'soda-sync-code';
 
-const loadLocal   = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } };
-const saveLocal   = e  => localStorage.setItem(STORAGE_KEY, JSON.stringify(e));
-const loadGoal    = () => parseInt(localStorage.getItem(GOAL_KEY) || '14', 10);
-const saveGoal    = g  => localStorage.setItem(GOAL_KEY, String(g));
-const loadCfg     = () => { try { return JSON.parse(localStorage.getItem(FB_KEY)); } catch { return null; } };
-const saveCfg     = c  => localStorage.setItem(FB_KEY, JSON.stringify(c));
-const clearCfg    = () => localStorage.removeItem(FB_KEY);
+const loadLocal    = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } };
+const saveLocal    = e  => localStorage.setItem(STORAGE_KEY, JSON.stringify(e));
+const loadGoal     = () => parseInt(localStorage.getItem(GOAL_KEY) || '14', 10);
+const saveGoal     = g  => localStorage.setItem(GOAL_KEY, String(g));
+const loadSyncCode = () => localStorage.getItem(SYNC_CODE_KEY);
+const saveSyncCode = c  => localStorage.setItem(SYNC_CODE_KEY, c);
 
-// ── Date helpers ──────────────────────────────────────────────────────
+function getOrCreateSyncCode() {
+  let code = loadSyncCode();
+  if (!code) {
+    code = Array.from(crypto.getRandomValues(new Uint8Array(6)))
+      .map(b => b.toString(16).padStart(2,'0')).join('').slice(0,12).toUpperCase();
+    saveSyncCode(code);
+  }
+  return code;
+}
+
+// ── Firestore REST ────────────────────────────────────────────────────
+const FS_BASE = 'https://firestore.googleapis.com/v1';
+
+function colURL(syncCode) {
+  return `${FS_BASE}/projects/${FB_PROJECT_ID}/databases/(default)/documents/soda/${syncCode}/entries`;
+}
+
+function toFS(e) {
+  return { fields: { id:{stringValue:e.id}, date:{stringValue:e.date}, iso:{stringValue:e.iso}, ts:{integerValue:String(e.ts)} } };
+}
+
+function fromFS(doc) {
+  const f = doc.fields;
+  return { id:f.id.stringValue, date:f.date.stringValue, iso:f.iso.stringValue, ts:parseInt(f.ts.integerValue,10) };
+}
+
+async function fsFetch(syncCode) {
+  const r = await fetch(`${colURL(syncCode)}?key=${FB_API_KEY}`);
+  if (!r.ok) throw new Error(`Firestore ${r.status}`);
+  const d = await r.json();
+  return d.documents ? d.documents.map(fromFS) : [];
+}
+
+async function fsWrite(syncCode, entry) {
+  const r = await fetch(`${colURL(syncCode)}/${entry.id}?key=${FB_API_KEY}`, {
+    method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify(toFS(entry)),
+  });
+  if (!r.ok) throw new Error(`Firestore write ${r.status}`);
+}
+
+async function fsDelete(syncCode, id) {
+  const r = await fetch(`${colURL(syncCode)}/${id}?key=${FB_API_KEY}`, { method: 'DELETE' });
+  if (!r.ok) throw new Error(`Firestore delete ${r.status}`);
+}
+
+// ── Sync ──────────────────────────────────────────────────────────────
+let syncStatus = 'syncing';
+
+function setSyncStatus(s, msg) {
+  syncStatus = s;
+  document.getElementById('syncDot').className = 'sync-dot ' + s;
+  const dot = document.getElementById('modalDot');
+  if (dot) dot.className = 'badge-dot ' + s;
+  const statusEl = document.getElementById('modalStatus');
+  if (statusEl && msg) statusEl.textContent = msg;
+}
+
+function mergeEntries(a, b) {
+  const map = new Map();
+  [...a, ...b].forEach(e => map.set(e.id, e));
+  return [...map.values()];
+}
+
+async function syncDown() {
+  const code = loadSyncCode();
+  if (!code) return;
+  setSyncStatus('syncing', 'Syncing…');
+  try {
+    const remote = await fsFetch(code);
+    entries = mergeEntries(loadLocal(), remote);
+    saveLocal(entries);
+    setSyncStatus('ok', 'Synced');
+    render();
+  } catch (e) {
+    setSyncStatus('error', 'Sync error — check your connection');
+  }
+}
+
+// ── State ─────────────────────────────────────────────────────────────
+let entries = loadLocal();
+let goal    = loadGoal();
+
+// ── Render ────────────────────────────────────────────────────────────
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 function todayStr() {
@@ -312,8 +372,7 @@ function weekDates() {
   ws.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
   ws.setHours(0,0,0,0);
   return Array.from({ length: 7 }, (_, i) => {
-    const dd = new Date(ws);
-    dd.setDate(ws.getDate() + i);
+    const dd = new Date(ws); dd.setDate(ws.getDate() + i);
     const ds = `${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}-${String(dd.getDate()).padStart(2,'0')}`;
     return { date: ds, dayName: DAY_NAMES[dd.getDay()] };
   });
@@ -330,101 +389,8 @@ function weekRange() {
   return `${fmt(days[0].date)} – ${fmt(days[6].date)}`;
 }
 
-function genCode() {
-  return Array.from(crypto.getRandomValues(new Uint8Array(8)))
-    .map(b => b.toString(16).padStart(2,'0')).join('').slice(0,12).toUpperCase();
-}
-
-// ── Parse firebaseConfig ──────────────────────────────────────────────
-function parseFirebaseConfig(text) {
-  const apiKey    = text.match(/apiKey\s*[:=]\s*["']([^"']+)["']/)?.[1];
-  const projectId = text.match(/projectId\s*[:=]\s*["']([^"']+)["']/)?.[1];
-  return (apiKey && projectId) ? { apiKey, projectId } : null;
-}
-
-// ── Firestore REST helpers ────────────────────────────────────────────
-const FS_BASE = 'https://firestore.googleapis.com/v1';
-
-function colPath(cfg) {
-  return `${FS_BASE}/projects/${cfg.projectId}/databases/(default)/documents/soda/${cfg.syncCode}/entries`;
-}
-
-function toFS(entry) {
-  return {
-    fields: {
-      id:   { stringValue:  entry.id },
-      date: { stringValue:  entry.date },
-      iso:  { stringValue:  entry.iso },
-      ts:   { integerValue: String(entry.ts) },
-    }
-  };
-}
-
-function fromFS(doc) {
-  const f = doc.fields;
-  return {
-    id:   f.id.stringValue,
-    date: f.date.stringValue,
-    iso:  f.iso.stringValue,
-    ts:   parseInt(f.ts.integerValue, 10),
-  };
-}
-
-async function fsFetch(cfg) {
-  const r = await fetch(`${colPath(cfg)}?key=${cfg.apiKey}`);
-  if (!r.ok) throw new Error(`${r.status}`);
-  const data = await r.json();
-  return data.documents ? data.documents.map(fromFS) : [];
-}
-
-async function fsWrite(cfg, entry) {
-  const r = await fetch(`${colPath(cfg)}/${entry.id}?key=${cfg.apiKey}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(toFS(entry)),
-  });
-  if (!r.ok) throw new Error(`${r.status}`);
-}
-
-async function fsDelete(cfg, id) {
-  const r = await fetch(`${colPath(cfg)}/${id}?key=${cfg.apiKey}`, { method: 'DELETE' });
-  if (!r.ok) throw new Error(`${r.status}`);
-}
-
-// ── Sync ──────────────────────────────────────────────────────────────
-function setSyncStatus(s) {
-  document.getElementById('syncDot').className = 'sync-dot ' + (s === 'none' ? '' : s);
-}
-
-function mergeEntries(a, b) {
-  const map = new Map();
-  [...a, ...b].forEach(e => map.set(e.id, e));
-  return [...map.values()];
-}
-
-async function syncDown() {
-  const cfg = loadCfg();
-  if (!cfg) return;
-  setSyncStatus('syncing');
-  try {
-    const remote = await fsFetch(cfg);
-    entries = mergeEntries(loadLocal(), remote);
-    saveLocal(entries);
-    setSyncStatus('ok');
-    render();
-  } catch {
-    setSyncStatus('error');
-  }
-}
-
-// ── State ─────────────────────────────────────────────────────────────
-let entries = loadLocal();
-let goal    = loadGoal();
-
-// ── Render ────────────────────────────────────────────────────────────
 function render() {
   const today = todayStr(), days = weekDates();
-
   const countByDay = {};
   days.forEach(d => { countByDay[d.date] = 0; });
   entries.forEach(e => { if (countByDay[e.date] !== undefined) countByDay[e.date]++; });
@@ -448,10 +414,9 @@ function render() {
   let streak = 0;
   const budget = goal / 7;
   for (const { date } of [...days].reverse()) {
-    if ((countByDay[date] || 0) <= budget) streak++;
-    else break;
+    if ((countByDay[date] || 0) <= budget) streak++; else break;
   }
-  const streakEl     = document.getElementById('statStreak');
+  const streakEl = document.getElementById('statStreak');
   streakEl.textContent = streak;
   streakEl.className   = 'stat-value ' + (streak === 0 ? 'streak-0' : streak >= 5 ? 'streak-hi' : 'streak-lo');
 
@@ -472,7 +437,6 @@ function render() {
   const listEl       = document.getElementById('entriesList');
   listEl.innerHTML   = '';
   const todayEntries = entries.filter(e => e.date === today).sort((a,b) => b.ts - a.ts);
-
   if (!todayEntries.length) {
     listEl.innerHTML = '<div class="empty-state">No sodas logged today — keep it up!</div>';
   } else {
@@ -491,7 +455,7 @@ function render() {
 // ── Actions ───────────────────────────────────────────────────────────
 async function logSoda() {
   const now   = new Date();
-  const entry = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, date: todayStr(), iso: now.toISOString(), ts: now.getTime() };
+  const entry = { id:`${Date.now()}-${Math.random().toString(36).slice(2)}`, date:todayStr(), iso:now.toISOString(), ts:now.getTime() };
   entries.push(entry);
   saveLocal(entries);
   render();
@@ -500,103 +464,88 @@ async function logSoda() {
   btn.innerHTML = '✓ Logged!'; btn.style.background = '#4eca8b';
   setTimeout(() => { btn.innerHTML = '<span>+</span> Log a soda'; btn.style.background = ''; }, 800);
 
-  const cfg = loadCfg();
-  if (cfg) { setSyncStatus('syncing'); try { await fsWrite(cfg, entry); setSyncStatus('ok'); } catch { setSyncStatus('error'); } }
+  const code = loadSyncCode();
+  if (code) { setSyncStatus('syncing'); try { await fsWrite(code, entry); setSyncStatus('ok','Synced'); } catch { setSyncStatus('error','Sync error'); } }
 }
 
 async function removeEntry(id) {
   entries = entries.filter(e => e.id !== id);
   saveLocal(entries);
   render();
-
-  const cfg = loadCfg();
-  if (cfg) { setSyncStatus('syncing'); try { await fsDelete(cfg, id); setSyncStatus('ok'); } catch { setSyncStatus('error'); } }
+  const code = loadSyncCode();
+  if (code) { setSyncStatus('syncing'); try { await fsDelete(code, id); setSyncStatus('ok','Synced'); } catch { setSyncStatus('error','Sync error'); } }
 }
 
 // ── Modal ─────────────────────────────────────────────────────────────
 function openSyncModal() {
-  const cfg = loadCfg();
-  if (cfg) {
-    document.getElementById('connectedView').style.display = 'flex';
-    document.getElementById('setupView').style.display     = 'none';
-    document.getElementById('connectedCode').value         = cfg.syncCode;
-  } else {
-    document.getElementById('connectedView').style.display = 'none';
-    document.getElementById('setupView').style.display     = 'flex';
-    if (!document.getElementById('syncCode').value) document.getElementById('syncCode').value = genCode();
-  }
+  const code = loadSyncCode() || getOrCreateSyncCode();
+  document.getElementById('codeDisplay').textContent = code;
+  document.getElementById('switchPanel').classList.remove('open');
+  document.getElementById('newCodeInput').value = '';
+  document.getElementById('switchError').style.display = 'none';
+
+  const dot = document.getElementById('modalDot');
+  dot.className = 'badge-dot ' + syncStatus;
+  const statusEl = document.getElementById('modalStatus');
+  statusEl.textContent = syncStatus === 'ok' ? 'Synced' : syncStatus === 'syncing' ? 'Syncing…' : 'Sync error — check connection';
+
   document.getElementById('syncOverlay').classList.add('open');
 }
 
 function closeSyncModal() { document.getElementById('syncOverlay').classList.remove('open'); }
 
-async function connectFirebase() {
-  const raw      = document.getElementById('configInput').value.trim();
-  const syncCode = document.getElementById('syncCode').value.trim().toUpperCase();
-  const err      = document.getElementById('connectError');
+async function applyNewCode() {
+  const raw = document.getElementById('newCodeInput').value.trim().toUpperCase();
+  const err = document.getElementById('switchError');
   err.style.display = 'none';
+  if (!raw) { err.textContent = 'Enter a sync code.'; err.style.display = 'block'; return; }
 
-  const parsed = parseFirebaseConfig(raw);
-  if (!parsed)   { err.textContent = 'Could not read apiKey / projectId — make sure you pasted the full firebaseConfig block.'; err.style.display = 'block'; return; }
-  if (!syncCode) { err.textContent = 'Please enter a sync code.'; err.style.display = 'block'; return; }
-
-  const btn = document.getElementById('connectBtn');
-  btn.textContent = 'Connecting…'; btn.disabled = true;
-
-  const cfg = { ...parsed, syncCode };
+  const btn = document.getElementById('applyCodeBtn');
+  btn.textContent = 'Switching…'; btn.disabled = true;
 
   try {
-    // Test connection — will 401/403 if Firestore isn't enabled, 200/404 if it is
-    const r = await fetch(`${colPath(cfg)}?key=${cfg.apiKey}`);
-    if (r.status === 400 || r.status === 401 || r.status === 403) {
-      const body = await r.json().catch(() => ({}));
-      throw new Error(body.error?.message || `Status ${r.status} — make sure Firestore is enabled and in test mode.`);
-    }
-
-    // Upload any local entries
-    for (const e of entries) await fsWrite(cfg, e);
-
-    // Pull remote and merge
-    const remote = await fsFetch(cfg);
+    const remote = await fsFetch(raw);
+    // push local entries to new code's namespace
+    for (const e of entries) await fsWrite(raw, e);
     entries = mergeEntries(entries, remote);
     saveLocal(entries);
-
-    saveCfg(cfg);
-    setSyncStatus('ok');
+    saveSyncCode(raw);
+    setSyncStatus('ok', 'Synced');
     render();
-    closeSyncModal();
+    document.getElementById('codeDisplay').textContent = raw;
+    document.getElementById('switchPanel').classList.remove('open');
   } catch (e) {
-    err.textContent = `Connection failed: ${e.message}`;
+    err.textContent = `Failed: ${e.message}`;
     err.style.display = 'block';
   } finally {
-    btn.textContent = 'Connect & Sync'; btn.disabled = false;
+    btn.textContent = 'Switch & Sync'; btn.disabled = false;
   }
 }
 
-function disconnectSync() { clearCfg(); setSyncStatus('none'); closeSyncModal(); }
-
 async function copyText(text, btn) {
-  try { await navigator.clipboard.writeText(text); const o = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = o, 1500); } catch {}
+  try { await navigator.clipboard.writeText(text); const o=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>btn.textContent=o,1500); } catch {}
 }
 
 // ── Events ────────────────────────────────────────────────────────────
 document.getElementById('logBtn').addEventListener('click', logSoda);
 document.getElementById('syncBtn').addEventListener('click', openSyncModal);
 document.getElementById('closeModal').addEventListener('click', closeSyncModal);
-document.getElementById('connectBtn').addEventListener('click', connectFirebase);
-document.getElementById('disconnectBtn').addEventListener('click', disconnectSync);
-document.getElementById('syncOverlay').addEventListener('click', e => { if (e.target === document.getElementById('syncOverlay')) closeSyncModal(); });
-document.getElementById('entriesList').addEventListener('click', e => { const b = e.target.closest('.remove-btn'); if (b) removeEntry(b.dataset.id); });
-document.getElementById('copyNewCodeBtn').addEventListener('click', () => copyText(document.getElementById('syncCode').value, document.getElementById('copyNewCodeBtn')));
-document.getElementById('copyCodeBtn').addEventListener('click',    () => copyText(document.getElementById('connectedCode').value, document.getElementById('copyCodeBtn')));
+document.getElementById('syncOverlay').addEventListener('click', e => { if (e.target===document.getElementById('syncOverlay')) closeSyncModal(); });
+document.getElementById('entriesList').addEventListener('click', e => { const b=e.target.closest('.remove-btn'); if(b) removeEntry(b.dataset.id); });
+document.getElementById('copyCodeBtn').addEventListener('click', () => copyText(loadSyncCode(), document.getElementById('copyCodeBtn')));
+document.getElementById('switchCodeBtn').addEventListener('click', () => document.getElementById('switchPanel').classList.toggle('open'));
+document.getElementById('applyCodeBtn').addEventListener('click', applyNewCode);
 
 const goalInput = document.getElementById('goalInput');
 goalInput.value = goal;
-goalInput.addEventListener('change', () => { const v = parseInt(goalInput.value,10); if (!isNaN(v) && v >= 1) { goal = v; saveGoal(goal); render(); } });
+goalInput.addEventListener('change', () => { const v=parseInt(goalInput.value,10); if(!isNaN(v)&&v>=1){goal=v;saveGoal(goal);render();} });
 
 // ── Init ──────────────────────────────────────────────────────────────
+getOrCreateSyncCode();
 render();
-if (loadCfg()) { setSyncStatus('ok'); syncDown(); setInterval(syncDown, 60_000); }
+setSyncStatus('syncing', 'Syncing…');
+syncDown();
+setInterval(syncDown, 60_000);
 </script>
 </body>
 </html>
